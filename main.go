@@ -51,12 +51,6 @@ func run() error {
 		totalBytes += sz
 	}
 
-	fmt.Printf(
-		"estimated savings ~%s from %d directories\n",
-		humanizeBytes(totalBytes),
-		len(dirs),
-	)
-
 	for _, dir := range dirs {
 		if dryRun {
 			fmt.Printf("DRY-RUN: deleting %s\n", dir)
@@ -67,6 +61,12 @@ func run() error {
 			}
 		}
 	}
+
+	fmt.Printf(
+		"estimated savings ~%s from %d directories\n",
+		humanizeBytes(totalBytes),
+		len(dirs),
+	)
 
 	return nil
 }
