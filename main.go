@@ -147,10 +147,12 @@ func estimateTreeSize(d string) (int64, error) {
 	}
 	cmd := exec.Command("du", "-s", "--block-size=1", d)
 
+	var stderr bytes.Buffer
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("%v: %s", err, stderr.String())
 	}
 
 	s := stdout.String()
