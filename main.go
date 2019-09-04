@@ -108,22 +108,33 @@ func scanForToplevelStuff() ([]string, error) {
 		"test-agent",
 		"test-consul-agent",
 	}
+	var eligibleFilePrefixes = []string{
+		"snapshot",
+	}
 
 	files, err := ioutil.ReadDir(tmpRoot)
 	if err != nil {
 		return nil, err
 	}
 
-	shouldDelete := func(name string) bool {
-		if name == "consul-test" { // definitely nuke the weird toplevel
-			return true
-		}
-		if strings.HasPrefix(name, "go-build") {
-			return true
-		}
-		for _, pfx := range eligiblePrefixes {
-			if strings.HasPrefix(name, pfx) {
+	shouldDelete := func(dir bool, name string) bool {
+		if dir {
+			if name == "consul-test" { // definitely nuke the weird toplevel
 				return true
+			}
+			if strings.HasPrefix(name, "go-build") {
+				return true
+			}
+			for _, pfx := range eligiblePrefixes {
+				if strings.HasPrefix(name, pfx) {
+					return true
+				}
+			}
+		} else {
+			for _, pfx := range eligibleFilePrefixes {
+				if strings.HasPrefix(name, pfx) {
+					return true
+				}
 			}
 		}
 		return false
@@ -131,7 +142,7 @@ func scanForToplevelStuff() ([]string, error) {
 
 	var roots []string
 	for _, st := range files {
-		if st.IsDir() && shouldDelete(st.Name()) {
+		if shouldDelete(st.IsDir(), st.Name()) {
 			roots = append(roots, filepath.Join(tmpRoot, st.Name()))
 		}
 	}
