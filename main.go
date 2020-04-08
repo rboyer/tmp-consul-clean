@@ -107,9 +107,15 @@ func scanForToplevelStuff() ([]string, error) {
 		"Test",
 		"test-agent",
 		"test-consul-agent",
+		"consul",
 	}
 	var eligibleFilePrefixes = []string{
 		"snapshot",
+	}
+	var eligibleFilePatterns = []*regexp.Regexp{
+		regexp.MustCompile(`^go\..*\.(sum|mod)$`),
+		regexp.MustCompile(`^gopls\..*-heap.pb.gz$`),
+		regexp.MustCompile(`^gopls\..*-goroutines.txt$`),
 	}
 
 	files, err := ioutil.ReadDir(tmpRoot)
@@ -133,6 +139,11 @@ func scanForToplevelStuff() ([]string, error) {
 		} else {
 			for _, pfx := range eligibleFilePrefixes {
 				if strings.HasPrefix(name, pfx) {
+					return true
+				}
+			}
+			for _, patt := range eligibleFilePatterns {
+				if patt.MatchString(name) {
 					return true
 				}
 			}
