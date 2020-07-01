@@ -108,6 +108,14 @@ func scanForToplevelStuff() ([]string, error) {
 		"test-agent",
 		"test-consul-agent",
 		"consul",
+		"Agent1-agent",
+		"Agent2-agent",
+		"betty-agent",
+		"bob-agent",
+		"bonnie-agent",
+		"dc1-agent",
+		"dc2-agent",
+		// "vim-go",
 	}
 	var eligibleFilePrefixes = []string{
 		"snapshot",
@@ -116,6 +124,7 @@ func scanForToplevelStuff() ([]string, error) {
 		regexp.MustCompile(`^go\..*\.(sum|mod)$`),
 		regexp.MustCompile(`^gopls\..*-heap.pb.gz$`),
 		regexp.MustCompile(`^gopls\..*-goroutines.txt$`),
+		regexp.MustCompile(`^gopls-.*.log$`),
 	}
 
 	files, err := ioutil.ReadDir(tmpRoot)
@@ -126,9 +135,6 @@ func scanForToplevelStuff() ([]string, error) {
 	shouldDelete := func(dir bool, name string) bool {
 		if dir {
 			if name == "consul-test" { // definitely nuke the weird toplevel
-				return true
-			}
-			if strings.HasPrefix(name, "go-build") {
 				return true
 			}
 			for _, pfx := range eligiblePrefixes {
