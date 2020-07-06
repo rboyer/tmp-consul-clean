@@ -125,6 +125,7 @@ func scanForToplevelStuff() ([]string, error) {
 		regexp.MustCompile(`^gopls\..*-heap.pb.gz$`),
 		regexp.MustCompile(`^gopls\..*-goroutines.txt$`),
 		regexp.MustCompile(`^gopls-.*.log$`),
+		regexp.MustCompile(`^gopls\..*\.zip$`),
 	}
 
 	files, err := ioutil.ReadDir(tmpRoot)
