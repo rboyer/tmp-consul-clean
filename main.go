@@ -115,10 +115,12 @@ func scanForToplevelStuff() ([]string, error) {
 		"bonnie-agent",
 		"dc1-agent",
 		"dc2-agent",
+		"gopls-",
 		// "vim-go",
 	}
 	var eligibleFilePrefixes = []string{
 		"snapshot",
+		"config-err-",
 	}
 	var eligibleFilePatterns = []*regexp.Regexp{
 		regexp.MustCompile(`^go\..*\.(sum|mod)$`),
