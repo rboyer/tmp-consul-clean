@@ -57,7 +57,11 @@ func run() error {
 		} else {
 			fmt.Printf("deleting %s\n", dir)
 			if err := os.RemoveAll(dir); err != nil {
-				return err
+				if strings.Contains(err.Error(), "Permission denied") {
+					fmt.Printf("ERR: skipping %d: %v\n", dir, err)
+				} else {
+					return err
+				}
 			}
 		}
 	}
