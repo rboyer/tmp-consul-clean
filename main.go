@@ -45,7 +45,11 @@ func run() error {
 	for _, dir := range dirs {
 		sz, err := estimateTreeSize(dir)
 		if err != nil {
-			return err
+			if strings.Contains(err.Error(), "Permission denied") {
+				fmt.Printf("ERR: skipping %s for estimation: %v\n", dir, err)
+			} else {
+				return err
+			}
 		}
 
 		totalBytes += sz
@@ -58,7 +62,7 @@ func run() error {
 			fmt.Printf("deleting %s\n", dir)
 			if err := os.RemoveAll(dir); err != nil {
 				if strings.Contains(err.Error(), "Permission denied") {
-					fmt.Printf("ERR: skipping %d: %v\n", dir, err)
+					fmt.Printf("ERR: skipping %s: %v\n", dir, err)
 				} else {
 					return err
 				}
