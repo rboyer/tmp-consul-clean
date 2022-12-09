@@ -125,6 +125,9 @@ func scanForToplevelStuff() ([]string, error) {
 		"dc2-agent",
 		"gopls-",
 		// "vim-go",
+		"dc1-consul",
+		"dc2-consul",
+		"test-container",
 	}
 	var eligibleFilePrefixes = []string{
 		"snapshot",
