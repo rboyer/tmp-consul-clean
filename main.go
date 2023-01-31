@@ -36,18 +36,16 @@ func run() error {
 
 	dirs, err := scanForToplevelStuff()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to scan for cruft: %w", err)
 	}
 
 	var totalBytes int64
 	for _, dir := range dirs {
 		sz, err := estimateTreeSize(dir)
-		if err != nil {
-			if strings.Contains(err.Error(), "Permission denied") {
-				fmt.Printf("ERR: skipping %s for estimation: %v\n", dir, err)
-			} else {
-				return err
-			}
+		if isPermDenied(err) {
+			fmt.Printf("ERR: skipping %s for estimation: %v\n", dir, err)
+		} else if err != nil {
+			return fmt.Errorf("could not estimate tree size of %s: %w", dir, err)
 		}
 
 		totalBytes += sz
@@ -59,10 +57,10 @@ func run() error {
 		} else {
 			fmt.Printf("deleting %s\n", dir)
 			if err := os.RemoveAll(dir); err != nil {
-				if strings.Contains(err.Error(), "Permission denied") {
-					fmt.Printf("ERR: skipping %s: %v\n", dir, err)
+				if isPermDenied(err) {
+					fmt.Printf("ERR: skipping %s for deletion: %v\n", dir, err)
 				} else {
-					return err
+					return fmt.Errorf("failed to delete cruft %s: %w", dir, err)
 				}
 			}
 		}
@@ -207,4 +205,8 @@ func estimateTreeSize(d string) (int64, error) {
 	}
 
 	return v, nil
+}
+
+func isPermDenied(err error) bool {
+	return err != nil && strings.Contains(strings.ToLower(err.Error()), "permission denied")
 }
