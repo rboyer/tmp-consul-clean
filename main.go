@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -141,7 +139,7 @@ func scanForToplevelStuff() ([]string, error) {
 		regexp.MustCompile(`^gopls\..*\.zip$`),
 	}
 
-	files, err := ioutil.ReadDir(tmpRoot)
+	files, err := os.ReadDir(tmpRoot)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +179,7 @@ func scanForToplevelStuff() ([]string, error) {
 	return roots, nil
 }
 
-var duRE = regexp.MustCompile("^([0-9]+)\\s+")
+var duRE = regexp.MustCompile(`^([0-9]+)\s+`)
 
 func estimateTreeSize(d string) (int64, error) {
 	if d == "" {
@@ -209,22 +207,4 @@ func estimateTreeSize(d string) (int64, error) {
 	}
 
 	return v, nil
-}
-
-func nukeTree(d string) error {
-	if !filepath.IsAbs(d) {
-		return fmt.Errorf("not an absolute path: %s", d)
-	}
-	st, err := os.Lstat(d)
-	if os.IsNotExist(err) {
-		return nil
-	} else if err != nil {
-		return err
-	}
-	if !st.IsDir() {
-		return fmt.Errorf("not a directory: %s", d)
-	}
-	log.Printf("NUKE: %s", d)
-	return nil
-	// return os.RemoveAll(d)
 }
