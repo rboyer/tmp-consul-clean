@@ -43,7 +43,7 @@ func run() error {
 	for _, dir := range dirs {
 		sz, err := estimateTreeSize(dir)
 		if isPermDenied(err) {
-			fmt.Printf("ERR: skipping %s for estimation: %v\n", dir, err)
+			logWarn("skipping %s for estimation: %v", dir, err)
 		} else if err != nil {
 			return fmt.Errorf("could not estimate tree size of %s: %w", dir, err)
 		}
@@ -53,12 +53,12 @@ func run() error {
 
 	for _, dir := range dirs {
 		if dryRun {
-			fmt.Printf("DRY-RUN: deleting %s\n", dir)
+			logInfo("DRY-RUN: deleting %s", dir)
 		} else {
-			fmt.Printf("deleting %s\n", dir)
+			logInfo("deleting: %s", dir)
 			if err := os.RemoveAll(dir); err != nil {
 				if isPermDenied(err) {
-					fmt.Printf("ERR: skipping %s for deletion: %v\n", dir, err)
+					logWarn("skipping %s for deletion: %v", dir, err)
 				} else {
 					return fmt.Errorf("failed to delete cruft %s: %w", dir, err)
 				}
@@ -66,8 +66,8 @@ func run() error {
 		}
 	}
 
-	fmt.Printf(
-		"estimated savings ~%s from %d directories\n",
+	logInfo(
+		"estimated savings ~%s from %d directories",
 		humanizeBytes(totalBytes),
 		len(dirs),
 	)
@@ -139,7 +139,7 @@ func scanForToplevelStuff() ([]string, error) {
 
 	files, err := os.ReadDir(tmpRoot)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not list contents of %s: %w", tmpRoot, err)
 	}
 
 	shouldDelete := func(dir bool, name string) bool {
@@ -209,4 +209,16 @@ func estimateTreeSize(d string) (int64, error) {
 
 func isPermDenied(err error) bool {
 	return err != nil && strings.Contains(strings.ToLower(err.Error()), "permission denied")
+}
+
+func logErr(format string, a ...any) {
+	fmt.Fprintf(os.Stderr, "ERROR: "+format+"\n", a...)
+}
+
+func logWarn(format string, a ...any) {
+	fmt.Fprintf(os.Stderr, "WARN: "+format+"\n", a...)
+}
+
+func logInfo(format string, a ...any) {
+	fmt.Fprintf(os.Stdout, "INFO: "+format+"\n", a...)
 }
